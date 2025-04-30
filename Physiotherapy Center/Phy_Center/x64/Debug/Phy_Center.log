@@ -8,8 +8,8 @@
   mian.cpp
   Node.cpp
   Patient.cpp
-C:\A9MD26\CUFE\4-Spring-2025\Data Structures and Algorithms\Project\Phy_Center\Phy_Center\Patient.cpp(136,13): warning C4150: deletion of pointer to incomplete type 'Treatment'; no destructor called
-      C:\A9MD26\CUFE\4-Spring-2025\Data Structures and Algorithms\Project\Phy_Center\Phy_Center\Patient.h(6,7):
+C:\A9MD26\CUFE\4-Spring-2025\Data Structures and Algorithms\Project\Physiotherapy_Center\Physiotherapy Center\Phy_Center\Patient.cpp(136,13): warning C4150: deletion of pointer to incomplete type 'Treatment'; no destructor called
+      C:\A9MD26\CUFE\4-Spring-2025\Data Structures and Algorithms\Project\Physiotherapy_Center\Physiotherapy Center\Phy_Center\Patient.h(6,7):
       see declaration of 'Treatment'
   
   priNode.cpp
@@ -17,7 +17,7 @@ C:\A9MD26\CUFE\4-Spring-2025\Data Structures and Algorithms\Project\Phy_Center\P
   QueueADT.cpp
   Resource.cpp
   Schedular.cpp
-C:\A9MD26\CUFE\4-Spring-2025\Data Structures and Algorithms\Project\Phy_Center\Phy_Center\Schedular.cpp(4,15): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+C:\A9MD26\CUFE\4-Spring-2025\Data Structures and Algorithms\Project\Physiotherapy_Center\Physiotherapy Center\Phy_Center\Schedular.cpp(4,15): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
   StackADT.cpp
   Treatment.cpp
   UDevice.cpp
@@ -28,4 +28,5 @@ C:\A9MD26\CUFE\4-Spring-2025\Data Structures and Algorithms\Project\Phy_Center\P
   XTherapy.cpp
   X_Waitlist.cpp
   Generating Code...
-  Phy_Center.vcxproj -> C:\A9MD26\CUFE\4-Spring-2025\Data Structures and Algorithms\Project\Phy_Center\x64\Debug\Phy_Center.exe
+  LINK : C:\A9MD26\CUFE\4-Spring-2025\Data Structures and Algorithms\Project\Physiotherapy_Center\Physiotherapy Center\x64\Debug\Phy_Center.exe not found or not built by the last incremental link; performing full link
+  Phy_Center.vcxproj -> C:\A9MD26\CUFE\4-Spring-2025\Data Structures and Algorithms\Project\Physiotherapy_Center\Physiotherapy Center\x64\Debug\Phy_Center.exe

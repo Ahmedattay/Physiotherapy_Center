@@ -180,4 +180,7 @@
   <ItemGroup>
     <Text Include="input1.txt" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include=".gitignore" />
+  </ItemGroup>
 </Project>
