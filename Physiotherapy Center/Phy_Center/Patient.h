@@ -33,6 +33,7 @@ private:
     int FinsihTime;
     int TotalWaittime;
     int TotalTreatmenttime;
+    Treatment* currentTreatment;
 
 public:
 
@@ -67,7 +68,7 @@ public:
     int  getWaitingStartTime();
     int getTotalTreatmentTime()const;
     void setTotalTreatmentTime(int TT);//TT
-
+    void setCurrentTreatment(Treatment* t);
     int getArrival_Time() const;
     void setArrival_Time(int Vt);//VT
 

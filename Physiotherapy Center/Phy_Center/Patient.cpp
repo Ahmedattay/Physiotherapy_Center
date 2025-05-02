@@ -130,7 +130,9 @@ bool Patient::isFinished() const {
 int Patient::getRemainingTreatments() const {
     return treatments.size();
 }
-
+void Patient::setCurrentTreatment(Treatment* t) {
+    currentTreatment = t;
+}
 bool Patient::moveToNextTreatment() 
 {
         if (!treatments.isEmpty()) {

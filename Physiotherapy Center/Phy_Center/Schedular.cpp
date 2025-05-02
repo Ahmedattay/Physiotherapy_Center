@@ -118,19 +118,43 @@ void Schedular::processLateList(int currentTime) {
         }
     }
 }
-void Schedular::processWaitingLists(int currentTime){
+void Schedular::processWaitingLists(int currentTime) {
     // Process E-Waiting
     while (!E_Waiting.isEmpty() && !E_Divces.isEmpty()) {
         Patient* patient;
-        E_Waiting.dequeue(patient);
-        assignTreatment(patient, E_Divces, currentTime);
+        E_Waiting.peek(patient);
+
+        // Verify treatment type matches waiting list
+        if (patient && patient->getCurrentTreatment() &&
+            patient->getCurrentTreatment()->GetType() == 'E') {
+            E_Waiting.dequeue(patient);
+            assignTreatment(patient, E_Divces, currentTime);
+        }
+        else {
+            // Handle mismatch - move to correct waiting list
+            char correctType = patient->getCurrentTreatment()->GetType();
+            E_Waiting.dequeue(patient);
+            AddToWait(patient, correctType);
+            continue;
+        }
     }
 
     // Process U-Waiting
     while (!U_Waiting.isEmpty() && !U_Divces.isEmpty()) {
         Patient* patient;
-        U_Waiting.dequeue(patient);
-        assignTreatment(patient, U_Divces, currentTime);
+        U_Waiting.peek(patient);
+
+        if (patient && patient->getCurrentTreatment() &&
+            patient->getCurrentTreatment()->GetType() == 'U') {
+            U_Waiting.dequeue(patient);
+            assignTreatment(patient, U_Divces, currentTime);
+        }
+        else {
+            char correctType = patient->getCurrentTreatment()->GetType();
+            U_Waiting.dequeue(patient);
+            AddToWait(patient, correctType);
+            continue;
+        }
     }
 
     // Process X-Waiting (special handling for room capacity)
@@ -139,8 +163,18 @@ void Schedular::processWaitingLists(int currentTime){
         X_Rooms.peek(room);
         if (room && room->getCurrentPatients() < room->getCapacity()) {
             Patient* patient;
-            X_Waiting.dequeue(patient);
-            assignTreatment(patient, X_Rooms, currentTime);
+            X_Waiting.peek(patient);
+
+            if (patient && patient->getCurrentTreatment() &&
+                patient->getCurrentTreatment()->GetType() == 'X') {
+                X_Waiting.dequeue(patient);
+                assignTreatment(patient, X_Rooms, currentTime);
+            }
+            else {
+                char correctType = patient->getCurrentTreatment()->GetType();
+                X_Waiting.dequeue(patient);
+                AddToWait(patient, correctType);
+            }
         }
     }
 }
@@ -153,9 +187,13 @@ void Schedular::processInTreatment(int currentTime) {
         releaseTreatment(patient);
 
         if (patient->moveToNextTreatment()) {
-            // Add waiting time tracking
-            /*patient->startWaiting(currentTime);*/
-            AddToWait(patient, patient->getCurrentTreatment()->GetType());
+            // For normal patients, get next treatment in sequence
+            char nextType = patient->getCurrentTreatment()->GetType();
+
+
+        
+
+            AddToWait(patient, nextType);
         }
         else {
             patient->setFinishTime(currentTime);
@@ -340,13 +378,21 @@ bool Schedular::shouldContinue() const {
 void Schedular::assignTreatment(Patient* patient, LinkedQueue<Resource*>& resourceQueue, int currentTime) {
     if (!patient || resourceQueue.isEmpty()) return;
 
-    // End waiting period
-    /*patient->endWaiting(currentTime);*/
-
     Resource* resource;
+    // Get current treatment type
+    char treatmentType = patient->getCurrentTreatment()->GetType();
+    resourceQueue.peek(resource);
+    char resourceType = resource->getResourceType();
+
+    // Verify treatment and resource types match
+    if (treatmentType != resourceType) {
+        AddToWait(patient, treatmentType);
+        return;
+    }
+
     resourceQueue.dequeue(resource);
 
-    // Special handling for X-rooms
+    // Special handling for X-therapy rooms
     if (resource->getResourceType() == 'X') {
         GymRoom* room = static_cast<GymRoom*>(resource);
         if (room->getCurrentPatients() >= room->getCapacity()) {
@@ -356,6 +402,7 @@ void Schedular::assignTreatment(Patient* patient, LinkedQueue<Resource*>& resour
         room->addPatient(patient);
     }
 
+    // Assign treatment
     patient->getCurrentTreatment()->setResource(resource);
     int finishTime = currentTime + patient->getCurrentTreatment()->GetDuration();
     In_Treatment.enqueue(patient, finishTime);
@@ -528,25 +575,18 @@ void Schedular::releaseTreatment(Patient* patient) {
     if (resource) {
         resource->removePatient();
 
-        // Return resource to available queue
+        // Return resource to appropriate available queue
         switch (resource->getResourceType()) {
         case 'E':
             E_Divces.enqueue(resource);
-            availableEDevices++;
             break;
         case 'U':
             U_Divces.enqueue(resource);
-            availableUDevices++;
             break;
         case 'X':
             X_Rooms.enqueue(resource);
-            availableGRooms++;
             break;
         }
-
-        cout << "P" << patient->getPatientID() << " finished "
-            << patient->getCurrentTreatment()->GetType()
-            << "-therapy" << endl;
     }
 }
 /////////////////////////////////////////
