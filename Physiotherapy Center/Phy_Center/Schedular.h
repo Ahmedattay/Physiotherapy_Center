@@ -40,7 +40,7 @@ private:
 	LinkedQueue<Resource*> U_Divces;
 	LinkedQueue<Resource*> E_Divces;
 	LinkedQueue<Resource*> X_Rooms;
-	LinkedQueue<Treatment*>  Required_Treatments;
+	LinkedQueue<Treatment*>  treatments;
 
 	Patient* patient;
 	Resource* resource;

@@ -36,40 +36,69 @@ void Schedular::processArrivals(int currentTime) {
     while (ALL_Patients.peek(patient) && patient->getArrival_Time() <= currentTime) {
         ALL_Patients.dequeue(patient);
 
-        //if (patient->getFinsihTime() < currentTime) {
-        //    Status pStat = FNSH;
-        //    patient->setStatus(pStat);
-        //    Finished.push(patient);
-        //    continue;
-        //}
+        if (patient->getStatus() == FNSH) {
+            Finished.push(patient);
+            continue;
+        }
 
         if (patient->getArrival_Time() < patient->getAppoinment_Time()) {
             Early_Patients.enqueue(patient, patient->getAppoinment_Time());
-            Status pStat = ERLY;
-            patient->setStatus(pStat);
+            Status pstat;
+            pstat = ERLY;
+            patient->setStatus(pstat);
+            cout << "Moved P" << patient->getPatientID() << " from ALL to Early (PT="
+                << patient->getAppoinment_Time() << ")\n";
         }
         else if (patient->getArrival_Time() > patient->getAppoinment_Time()) {
             int penalty = (patient->getArrival_Time() - patient->getAppoinment_Time()) / 2;
-            Late_Patients.enqueue(patient, patient->getArrival_Time() + penalty);
-            Status pStat = LATE;
-            patient->setStatus(pStat);
+            int effectiveTime = patient->getArrival_Time() + penalty;
+            Late_Patients.enqueue(patient, effectiveTime);
+            Status pstat;
+            pstat = LATE;
+            patient->setStatus(pstat);
+            cout << "Moved P" << patient->getPatientID() << " from ALL to Late (penalty="
+                << penalty << ", effective=" << effectiveTime << ")\n";
         }
-        else { // On-time
+        else {
             if (patient->getCurrentTreatment()) {
-                AddToWait(patient, patient->getCurrentTreatment()->GetType());
+                char treatmentType = patient->getCurrentTreatment()->GetType();
+               AddToWait(patient, treatmentType);
             }
         }
     }
 }
 void Schedular::processEarlyList(int currentTime) {
-    Patient* patient;
-    int pt;
+    Patient* patient = nullptr;
+    int pt = 0;
+
     while (Early_Patients.peek(patient, pt) && pt <= currentTime) {
         Early_Patients.dequeue(patient, pt);
-        if (patient && patient->getCurrentTreatment()) {
-            char treatmentType = patient->getCurrentTreatment()->GetType();
-            AddToWait(patient, treatmentType);
+
+        if (!patient) {
+
+            continue;
         }
+        Treatment* currentTreatment = patient->getCurrentTreatment();
+        if (!currentTreatment) {
+
+            if (!patient->moveToNextTreatment()) {
+
+                Status pstat;
+                pstat = FNSH;
+                patient->setStatus(pstat);
+                patient->setFinishTime(currentTime);
+                Finished.push(patient);
+;
+            }
+            continue;
+        }
+
+        char treatmentType = currentTreatment->GetType();
+
+        AddToWait(patient, treatmentType);
+        Status pstat;
+        pstat = WAIT;
+        patient->setStatus(pstat);
     }
 }
 void Schedular::processLateList(int currentTime) {
@@ -77,9 +106,15 @@ void Schedular::processLateList(int currentTime) {
     int effectiveTime;
     while (Late_Patients.peek(patient, effectiveTime) && effectiveTime <= currentTime) {
         Late_Patients.dequeue(patient, effectiveTime);
+
         if (patient && patient->getCurrentTreatment()) {
             char treatmentType = patient->getCurrentTreatment()->GetType();
             AddToWait(patient, treatmentType);
+            Status pstat;
+            pstat = WAIT;
+            patient->setStatus(pstat);
+            //cout << "Moved P" << patient->getPatientID() << " from Late to "
+            //    << getWaitingListName(treatmentType) << " waiting list\n";
         }
     }
 }

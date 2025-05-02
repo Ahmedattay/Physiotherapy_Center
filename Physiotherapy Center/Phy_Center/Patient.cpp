@@ -57,11 +57,11 @@ void Patient::setAppoinment_Time(int Pt)
 
 LinkedQueue<Treatment*>  Patient::getTreatment()const
 {
-    return  Required_Treatments;
+    return  treatments;
 }
 void  Patient::setRequiredTreatments(LinkedQueue<Treatment*> rt)
 {
-    Required_Treatments = rt;
+    treatments = rt;
 }
 
 bool Patient::getIsclosed()const {
@@ -101,16 +101,19 @@ void Patient::setWaitingStartTime(int time) {
 void Patient::addWaitingTime(int wt) { TotalWaittime += wt; }
 int Patient::getWaitingStartTime() { return waitingStartTime; }
 Treatment* Patient:: getCurrentTreatment() {
-    LinkedQueue<Treatment*> treatments;
+    
     if (treatments.isEmpty()) {
-        cerr << "Warning: No treatments for patient " << patientID << endl;
         return nullptr;
     }
     Treatment* t = nullptr;
     treatments.peek(t); // Get without removing
     return t;
 }
-
+void Patient::addTreatment(Treatment* treatment) {
+    if (treatment) {
+        treatments.enqueue(treatment);
+    }
+}
 int Patient::getTotalTreatmentTime()const
 {
     return TotalTreatmenttime;
@@ -119,22 +122,17 @@ void Patient::setTotalTreatmentTime(int TT)
 {
     TotalTreatmenttime = TT;
 }
-void Patient::addTreatment(Treatment* t) {
-    Required_Treatments.enqueue(t);
-}
+
 bool Patient::isFinished() const {
-    LinkedQueue<Treatment*> treatments;
     return treatments.isEmpty();
 }
 
 int Patient::getRemainingTreatments() const {
-    LinkedQueue<Treatment*> treatments;
     return treatments.size();
 }
 
 bool Patient::moveToNextTreatment() 
 {
-        LinkedQueue<Treatment*> treatments;
         if (!treatments.isEmpty()) {
             Treatment* t;
             treatments.dequeue(t);

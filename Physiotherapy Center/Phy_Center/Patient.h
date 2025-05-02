@@ -26,9 +26,7 @@ private:
     Status status;
     int Appoinment_Time;
     int Arrival_Time;
-
-    LinkedQueue<Treatment*> Required_Treatments;
-
+    LinkedQueue<Treatment*> treatments;
     bool isCancelled;
     bool isResc;
     int waitingStartTime;
