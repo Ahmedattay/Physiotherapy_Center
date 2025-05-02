@@ -36,12 +36,12 @@ void Schedular::processArrivals(int currentTime) {
     while (ALL_Patients.peek(patient) && patient->getArrival_Time() <= currentTime) {
         ALL_Patients.dequeue(patient);
 
-        if (patient->getFinsihTime() <= currentTime) {
-            Status pStat = FNSH;
-            patient->setStatus(pStat);
-            Finished.push(patient);
-            continue;
-        }
+        //if (patient->getFinsihTime() < currentTime) {
+        //    Status pStat = FNSH;
+        //    patient->setStatus(pStat);
+        //    Finished.push(patient);
+        //    continue;
+        //}
 
         if (patient->getArrival_Time() < patient->getAppoinment_Time()) {
             Early_Patients.enqueue(patient, patient->getAppoinment_Time());
@@ -115,17 +115,18 @@ void Schedular::processInTreatment(int currentTime) {
 
     while (In_Treatment.peek(patient, finishTime) && finishTime <= currentTime) {
         In_Treatment.dequeue(patient, finishTime);
-
-        // Release the treatment resource
         releaseTreatment(patient);
 
-        // Move to next treatment or finish
         if (patient->moveToNextTreatment()) {
+            // Add waiting time tracking
+            /*patient->startWaiting(currentTime);*/
             AddToWait(patient, patient->getCurrentTreatment()->GetType());
         }
         else {
-            Status pStat = FNSH;
-            patient->setStatus(pStat);
+            patient->setFinishTime(currentTime);
+            Status pstat;
+            pstat = FNSH;
+            patient->setStatus(pstat);
             Finished.push(patient);
         }
     }
@@ -304,29 +305,28 @@ bool Schedular::shouldContinue() const {
 void Schedular::assignTreatment(Patient* patient, LinkedQueue<Resource*>& resourceQueue, int currentTime) {
     if (!patient || resourceQueue.isEmpty()) return;
 
-    Resource* resource = nullptr;
+    // End waiting period
+    /*patient->endWaiting(currentTime);*/
+
+    Resource* resource;
     resourceQueue.dequeue(resource);
 
-    if (resource) {
-        // Assign resource to treatment
-        patient->getCurrentTreatment()->setResource(resource);
-        resource->addPatient(patient);
-
-        // Calculate finish time and add to in-treatment queue
-        int finishTime = currentTime + patient->getCurrentTreatment()->GetDuration();
-        In_Treatment.enqueue(patient, finishTime);
-        Status pStat = SERV;
-        patient->setStatus(pStat);
-
-        // Update available counts
-        if (resource->getResourceType() == 'E') availableEDevices--;
-        else if (resource->getResourceType() == 'U') availableUDevices--;
-        else if (resource->getResourceType() == 'X') availableGRooms--;
-
-        cout << "P" << patient->getPatientID() << " started "
-            << patient->getCurrentTreatment()->GetType()
-            << "-therapy (finishes at T=" << finishTime << ")" << endl;
+    // Special handling for X-rooms
+    if (resource->getResourceType() == 'X') {
+        GymRoom* room = static_cast<GymRoom*>(resource);
+        if (room->getCurrentPatients() >= room->getCapacity()) {
+            resourceQueue.enqueue(resource);
+            return;
+        }
+        room->addPatient(patient);
     }
+
+    patient->getCurrentTreatment()->setResource(resource);
+    int finishTime = currentTime + patient->getCurrentTreatment()->GetDuration();
+    In_Treatment.enqueue(patient, finishTime);
+    Status pstat;
+    pstat = SERV;
+    patient->setStatus(pstat);
 }
 void Schedular::assignResources() {
     // Assign E-Therapy resources
