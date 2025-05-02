@@ -46,8 +46,8 @@ void Schedular::processArrivals(int currentTime) {
             Status pstat;
             pstat = ERLY;
             patient->setStatus(pstat);
-            cout << "Moved P" << patient->getPatientID() << " from ALL to Early (PT="
-                << patient->getAppoinment_Time() << ")\n";
+            //cout << "Moved P" << patient->getPatientID() << " from ALL to Early (PT="
+            //    << patient->getAppoinment_Time() << ")\n";
         }
         else if (patient->getArrival_Time() > patient->getAppoinment_Time()) {
             int penalty = (patient->getArrival_Time() - patient->getAppoinment_Time()) / 2;
@@ -56,8 +56,8 @@ void Schedular::processArrivals(int currentTime) {
             Status pstat;
             pstat = LATE;
             patient->setStatus(pstat);
-            cout << "Moved P" << patient->getPatientID() << " from ALL to Late (penalty="
-                << penalty << ", effective=" << effectiveTime << ")\n";
+            //cout << "Moved P" << patient->getPatientID() << " from ALL to Late (penalty="
+            //    << penalty << ", effective=" << effectiveTime << ")\n";
         }
         else {
             if (patient->getCurrentTreatment()) {
