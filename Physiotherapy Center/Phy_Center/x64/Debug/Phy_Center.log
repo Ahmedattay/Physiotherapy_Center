@@ -1,5 +1,6 @@
 ﻿  Patient.cpp
-  Schedular.cpp
-C:\A9MD26\CUFE\4-Spring-2025\Data Structures and Algorithms\Project\Physiotherapy_Center\Physiotherapy Center\Phy_Center\Schedular.cpp(4,15): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
-  Generating Code...
+C:\A9MD26\CUFE\4-Spring-2025\Data Structures and Algorithms\Project\Physiotherapy_Center\Physiotherapy Center\Phy_Center\Patient.cpp(141,13): warning C4150: deletion of pointer to incomplete type 'Treatment'; no destructor called
+      C:\A9MD26\CUFE\4-Spring-2025\Data Structures and Algorithms\Project\Physiotherapy_Center\Physiotherapy Center\Phy_Center\Patient.h(6,7):
+      see declaration of 'Treatment'
+  
   Phy_Center.vcxproj -> C:\A9MD26\CUFE\4-Spring-2025\Data Structures and Algorithms\Project\Physiotherapy_Center\Physiotherapy Center\x64\Debug\Phy_Center.exe
