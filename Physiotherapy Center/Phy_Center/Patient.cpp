@@ -95,6 +95,11 @@ void Patient::setTotalWaitTime(int TW)
 {
     TotalWaittime = TW;
 }
+void Patient::setWaitingStartTime(int time) {
+    waitingStartTime = time;
+}
+void Patient::addWaitingTime(int wt) { TotalWaittime += wt; }
+int Patient::getWaitingStartTime() { return waitingStartTime; }
 Treatment* Patient:: getCurrentTreatment() {
     LinkedQueue<Treatment*> treatments;
     if (treatments.isEmpty()) {

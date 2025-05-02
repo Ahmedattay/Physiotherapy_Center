@@ -36,7 +36,7 @@ void Schedular::processArrivals(int currentTime) {
     while (ALL_Patients.peek(patient) && patient->getArrival_Time() <= currentTime) {
         ALL_Patients.dequeue(patient);
 
-        if (patient->getTotalTreatmentTime() >= currentTime) {
+        if (patient->getFinsihTime() <= currentTime) {
             Status pStat = FNSH;
             patient->setStatus(pStat);
             Finished.push(patient);
@@ -253,13 +253,13 @@ void Schedular::loadFile(const string& filename) {
         inputFile >> char_type >> pt >> vt >> nt;
 
         Patient* patient = new Patient(i + 1, char_type, pt, vt);
-
+        int totalTreatmentTime = 0;
         // Read treatments (T1 D1 T2 D2 ...)
         for (int j = 0; j < nt; j++) {
             char tType;  // E, U, or X
             int duration;
             inputFile >> tType >> duration;
-
+            totalTreatmentTime += duration;
             Treatment* treatment = nullptr;
             switch (tType) {
             case 'E':
@@ -279,13 +279,17 @@ void Schedular::loadFile(const string& filename) {
                 patient->addTreatment(treatment);
             }
         }
+        patient->setFinishTime(vt + totalTreatmentTime);
 
+        patient->setTotalTreatmentTime(totalTreatmentTime);
         ALL_Patients.enqueue(patient);
     }
 
     inputFile.close();
 }
 void Schedular::AddToWait(Patient* patient, char Type) {
+    if (!patient) return;
+    patient->setWaitingStartTime(current_step);
     if (Type == 'E') E_Waiting.enqueue(patient);
     else if (Type == 'U') U_Waiting.enqueue(patient);
     else if (Type == 'X') X_Waiting.enqueue(patient);
@@ -408,21 +412,26 @@ void Schedular::assignETreatment() {
 
     Patient* patient;
     E_Waiting.dequeue(patient);
-    Resource* device;
-    E_Divces.dequeue(device);
+    if (patient) {
+        patient->addWaitingTime(current_step - patient->getWaitingStartTime());
+        Resource* device;
+        E_Divces.dequeue(device);
 
-    device->addPatient(patient);
-    patient->getCurrentTreatment()->setResource(device);
-    int finishTime = current_step + patient->getCurrentTreatment()->GetDuration();
-    In_Treatment.enqueue(patient, finishTime);
-    Status pstat = SERV;
-    patient->setStatus(pstat);
+        device->addPatient(patient);
+        patient->getCurrentTreatment()->setResource(device);
+        int finishTime = current_step + patient->getCurrentTreatment()->GetDuration();
+        In_Treatment.enqueue(patient, finishTime);
+        Status pstat;
+        pstat = SERV;
+        patient->setStatus(pstat);
+    }
 }
 void Schedular::assignUTreatment() {
     if (U_Waiting.isEmpty() || U_Divces.isEmpty()) return;
 
     Patient* patient;
     U_Waiting.dequeue(patient);
+    patient->addWaitingTime(current_step - patient->getWaitingStartTime());
     Resource* device;
     U_Divces.dequeue(device);
 
@@ -438,6 +447,7 @@ void Schedular::assignXTreatment() {
 
     Patient* patient;
     X_Waiting.peek(patient);
+    patient->addWaitingTime(current_step - patient->getWaitingStartTime());
     Resource* room;
     X_Rooms.peek(room);
 

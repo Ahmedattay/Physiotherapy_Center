@@ -31,7 +31,7 @@ private:
 
     bool isCancelled;
     bool isResc;
-
+    int waitingStartTime;
     int FinsihTime;
     int TotalWaittime;
     int TotalTreatmenttime;
@@ -64,7 +64,9 @@ public:
 
     int getTotalWaitTime()const;
     void setTotalWaitTime(int TW);//TW
-
+    void addWaitingTime(int wt);
+    void setWaitingStartTime(int time);
+    int  getWaitingStartTime();
     int getTotalTreatmentTime()const;
     void setTotalTreatmentTime(int TT);//TT
 
