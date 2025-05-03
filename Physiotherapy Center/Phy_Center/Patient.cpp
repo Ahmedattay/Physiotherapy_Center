@@ -1,6 +1,6 @@
 #include "Patient.h"
 
-Patient::Patient() : patientID(-1), type(NP), status(IDLE), Appoinment_Time(-1), Arrival_Time(-1), isCancelled(false), isResc(false), FinsihTime(-1), TotalTreatmenttime(-1), TotalWaittime(-1)
+Patient::Patient() : patientID(-1), type(NP), status(IDLE), Appoinment_Time(-1), Arrival_Time(-1), isCancelled(false), isResc(false), FinsihTime(-1), TotalTreatmenttime(-1), TotalWaittime(-1), currentTreatment(nullptr)
 {
 }
 Patient::Patient(int pid, char ptype, int pt, int vt)
@@ -13,7 +13,9 @@ Patient::Patient(int pid, char ptype, int pt, int vt)
     isResc(false),           // Default not rescheduled
     FinsihTime(0),                  // Will be calculated later
     TotalWaittime(0),               // Initialize to 0
-    TotalTreatmenttime(0)           // Initialize to 0
+    TotalTreatmenttime(0),
+    currentTreatment(nullptr)
+    // Initialize to 0
 {
 }
 int Patient::getPatientID() const {
@@ -113,6 +115,9 @@ void Patient::addTreatment(Treatment* treatment) {
     if (treatment) {
         treatments.enqueue(treatment);
     }
+    if (!currentTreatment) {
+        treatments.peek(currentTreatment); // Set first treatment
+    }
 }
 int Patient::getTotalTreatmentTime()const
 {
@@ -133,15 +138,21 @@ int Patient::getRemainingTreatments() const {
 void Patient::setCurrentTreatment(Treatment* t) {
     currentTreatment = t;
 }
-bool Patient::moveToNextTreatment() 
+bool Patient::moveToNextTreatment()
 {
-        if (!treatments.isEmpty()) {
-            Treatment* t;
-            treatments.dequeue(t);
-            delete t; // Clean up finished treatment
-            return true;
-        }
+    if (treatments.isEmpty()) {
+        currentTreatment = nullptr;
         return false;
     }
+    Treatment* completed;
+    treatments.dequeue(completed);
+
+    if (!treatments.isEmpty()) {
+        treatments.peek(currentTreatment);
+        return true;
+    }
+    currentTreatment = nullptr;
+    return false;
+}
 Patient::~Patient() {
 }

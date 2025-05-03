@@ -46,8 +46,7 @@ void Schedular::processArrivals(int currentTime) {
             Status pstat;
             pstat = ERLY;
             patient->setStatus(pstat);
-            //cout << "Moved P" << patient->getPatientID() << " from ALL to Early (PT="
-            //    << patient->getAppoinment_Time() << ")\n";
+
         }
         else if (patient->getArrival_Time() > patient->getAppoinment_Time()) {
             int penalty = (patient->getArrival_Time() - patient->getAppoinment_Time()) / 2;
@@ -56,8 +55,6 @@ void Schedular::processArrivals(int currentTime) {
             Status pstat;
             pstat = LATE;
             patient->setStatus(pstat);
-            //cout << "Moved P" << patient->getPatientID() << " from ALL to Late (penalty="
-            //    << penalty << ", effective=" << effectiveTime << ")\n";
         }
         else {
             if (patient->getCurrentTreatment()) {
@@ -79,6 +76,7 @@ void Schedular::processEarlyList(int currentTime) {
             continue;
         }
         Treatment* currentTreatment = patient->getCurrentTreatment();
+        
         if (!currentTreatment) {
 
             if (!patient->moveToNextTreatment()) {
@@ -94,7 +92,6 @@ void Schedular::processEarlyList(int currentTime) {
         }
 
         char treatmentType = currentTreatment->GetType();
-
         AddToWait(patient, treatmentType);
         Status pstat;
         pstat = WAIT;
