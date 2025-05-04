@@ -116,7 +116,8 @@ void UI::printResourceList(const char* name, const LinkedQueue<Resource*>& list)
 
     LinkedQueue<Resource*> temp = list;
     Resource* r;
-    while (temp.dequeue(r)) {
+    while (!temp.isEmpty()) {
+        temp.dequeue(r);
         std::cout << r->getId();
         if (!temp.isEmpty()) std::cout << ", ";
     }

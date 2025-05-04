@@ -25,7 +25,7 @@ void Schedular::runSimulation(int currentTime) {
     processArrivals(current_step);
     processEarlyList(current_step);
     processLateList(current_step);
-    processWaitingLists(currentTime);
+    processWaitingLists(current_step);
     processInTreatment(currentTime);
 
     // Use your existing print functions exactly as provided
@@ -153,26 +153,26 @@ void Schedular::processWaitingLists(int currentTime) {
     }
 
     // Process X-Waiting (special handling for room capacity)
-    while (!X_Waiting.isEmpty()) {
-            Resource* room;
-            X_Rooms.peek(room);
-            if (room && room->getCurrentPatients() < room->getCapacity()) {
-                Patient* patient;
-                X_Waiting.peek(patient);
+    if (!X_Waiting.isEmpty()) {
+        Resource* room;
+        X_Rooms.peek(room);
+        if (room && room->getCurrentPatients() < room->getCapacity()) {
+            Patient* patient;
+            X_Waiting.peek(patient);
 
-                if (patient && patient->getCurrentTreatment() &&
-                    patient->getCurrentTreatment()->GetType() == 'X') {
-                    X_Waiting.dequeue(patient);
-                    assignTreatment(patient, X_Rooms, currentTime);
-                }
-                else {
-                    char correctType = patient->getCurrentTreatment()->GetType();
-                    X_Waiting.dequeue(patient);
-                    AddToWait(patient, correctType);
-                }
+            if (patient && patient->getCurrentTreatment() &&
+                patient->getCurrentTreatment()->GetType() == 'X') {
+                X_Waiting.dequeue(patient);
+                assignTreatment(patient, X_Rooms, currentTime);
+            }
+            else {
+                char correctType = patient->getCurrentTreatment()->GetType();
+                X_Waiting.dequeue(patient);
+                AddToWait(patient, correctType);
             }
         }
     }
+}
 void Schedular::processInTreatment(int currentTime) {
     Patient* patient = nullptr;
     int finishTime;
@@ -181,7 +181,7 @@ void Schedular::processInTreatment(int currentTime) {
         In_Treatment.dequeue(patient, finishTime);
         releaseTreatment(patient);
 
-        if (patient->getFinsihTime()>=currentTime) {
+        if (patient->moveToNextTreatment()) {
             // For normal patients, get next treatment in sequence
             char nextType = patient->getCurrentTreatment()->GetType();
             AddToWait(patient, nextType);

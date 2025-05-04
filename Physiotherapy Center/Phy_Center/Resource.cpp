@@ -12,6 +12,7 @@ bool Resource::assignPatient(Patient* patient) {
     }
     if (patientQueue.enqueue(patient)) {
         available = (patientQueue.size() < capacity);
+        currentPatients++;
         return true;
     }
     return false;
@@ -40,7 +41,7 @@ void Resource::setAvailable(bool state) { available = state; }
 // getters 
 int Resource::getId() const { return resourceId; }
 bool Resource::isAvailable() const { return available; }
-int Resource::getCurrentPatients() const { return patientQueue.size(); }
+int Resource::getCurrentPatients() const { return currentPatients; }
 int Resource::getCapacity() const { return capacity; }
 
 string Resource::getStatus() const {

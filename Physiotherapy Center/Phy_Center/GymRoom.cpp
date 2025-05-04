@@ -13,6 +13,7 @@ string GymRoom::getStatus() const {
     return oss.str();
 }
 void GymRoom::addPatient(Patient* p) {
+
     if (currentPatients < capacity) {
         currentPatients++;
         cout << "Patient " << p->getPatientID()
