@@ -153,26 +153,26 @@ void Schedular::processWaitingLists(int currentTime) {
     }
 
     // Process X-Waiting (special handling for room capacity)
-    if (!X_Waiting.isEmpty()) {
-        Resource* room;
-        X_Rooms.peek(room);
-        if (room && room->getCurrentPatients() < room->getCapacity()) {
-            Patient* patient;
-            X_Waiting.peek(patient);
+    while (!X_Waiting.isEmpty()) {
+            Resource* room;
+            X_Rooms.peek(room);
+            if (room && room->getCurrentPatients() < room->getCapacity()) {
+                Patient* patient;
+                X_Waiting.peek(patient);
 
-            if (patient && patient->getCurrentTreatment() &&
-                patient->getCurrentTreatment()->GetType() == 'X') {
-                X_Waiting.dequeue(patient);
-                assignTreatment(patient, X_Rooms, currentTime);
-            }
-            else {
-                char correctType = patient->getCurrentTreatment()->GetType();
-                X_Waiting.dequeue(patient);
-                AddToWait(patient, correctType);
+                if (patient && patient->getCurrentTreatment() &&
+                    patient->getCurrentTreatment()->GetType() == 'X') {
+                    X_Waiting.dequeue(patient);
+                    assignTreatment(patient, X_Rooms, currentTime);
+                }
+                else {
+                    char correctType = patient->getCurrentTreatment()->GetType();
+                    X_Waiting.dequeue(patient);
+                    AddToWait(patient, correctType);
+                }
             }
         }
     }
-}
 void Schedular::processInTreatment(int currentTime) {
     Patient* patient = nullptr;
     int finishTime;
