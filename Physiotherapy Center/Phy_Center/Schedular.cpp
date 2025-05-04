@@ -52,6 +52,7 @@ void Schedular::processArrivals(int currentTime) {
             int penalty = (patient->getArrival_Time() - patient->getAppoinment_Time()) / 2;
             int effectiveTime = patient->getArrival_Time() + penalty;
             Late_Patients.enqueue(patient, effectiveTime);
+            /*patient->setAppoinment_Time(penalty+ patient->getAppoinment_Time());*/
             Status pstat;
             pstat = LATE;
             patient->setStatus(pstat);
@@ -110,8 +111,6 @@ void Schedular::processLateList(int currentTime) {
             Status pstat;
             pstat = WAIT;
             patient->setStatus(pstat);
-            //cout << "Moved P" << patient->getPatientID() << " from Late to "
-            //    << getWaitingListName(treatmentType) << " waiting list\n";
         }
     }
 }
@@ -122,8 +121,7 @@ void Schedular::processWaitingLists(int currentTime) {
         E_Waiting.peek(patient);
 
         // Verify treatment type matches waiting list
-        if (patient && patient->getCurrentTreatment() &&
-            patient->getCurrentTreatment()->GetType() == 'E') {
+        if (patient && patient->getCurrentTreatment() && patient->getCurrentTreatment()->GetType() == 'E') {
             E_Waiting.dequeue(patient);
             assignTreatment(patient, E_Divces, currentTime);
         }
@@ -183,13 +181,9 @@ void Schedular::processInTreatment(int currentTime) {
         In_Treatment.dequeue(patient, finishTime);
         releaseTreatment(patient);
 
-        if (patient->moveToNextTreatment()) {
+        if (patient->getFinsihTime()>=currentTime) {
             // For normal patients, get next treatment in sequence
             char nextType = patient->getCurrentTreatment()->GetType();
-
-
-        
-
             AddToWait(patient, nextType);
         }
         else {
@@ -397,11 +391,12 @@ void Schedular::assignTreatment(Patient* patient, LinkedQueue<Resource*>& resour
             return;
         }
         room->addPatient(patient);
+        
     }
 
     // Assign treatment
     patient->getCurrentTreatment()->setResource(resource);
-    int finishTime = currentTime + patient->getCurrentTreatment()->GetDuration();
+    int finishTime = patient->getAppoinment_Time() + patient->getCurrentTreatment()->GetDuration();
     In_Treatment.enqueue(patient, finishTime);
     Status pstat;
     pstat = SERV;

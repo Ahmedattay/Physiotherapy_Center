@@ -67,11 +67,10 @@ bool LinkedQueue<T>::dequeue(T& frntEntry)
 
     if (nodeToDeletePtr == backPtr)
         backPtr = nullptr;
-
     // Safeguard: Set the pointer to nullptr after deletion
     delete nodeToDeletePtr;
     nodeToDeletePtr = nullptr;
-
+    count--;
     return true;
 }
 
