@@ -152,7 +152,6 @@ void Schedular::processWaitingLists(int currentTime) {
         }
     }
 
-    // Process X-Waiting (special handling for room capacity)
     if (!X_Waiting.isEmpty()) {
         Resource* room;
         X_Rooms.peek(room);
@@ -172,6 +171,7 @@ void Schedular::processWaitingLists(int currentTime) {
             }
         }
     }
+
 }
 void Schedular::processInTreatment(int currentTime) {
     Patient* patient = nullptr;

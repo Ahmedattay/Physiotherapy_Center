@@ -138,19 +138,23 @@ int Patient::getRemainingTreatments() const {
 void Patient::setCurrentTreatment(Treatment* t) {
     currentTreatment = t;
 }
-bool Patient::moveToNextTreatment()
-{
+bool Patient::moveToNextTreatment() {
     if (treatments.isEmpty()) {
         currentTreatment = nullptr;
         return false;
     }
+
+    // Remove completed treatment
     Treatment* completed;
     treatments.dequeue(completed);
+    delete completed;
 
+    // Get next treatment if available
     if (!treatments.isEmpty()) {
         treatments.peek(currentTreatment);
         return true;
     }
+
     currentTreatment = nullptr;
     return false;
 }

@@ -2,7 +2,7 @@
 #include "UI.h"
 
 int main() {
-    int Timestep = 130;
+    int Timestep = 35;
     Schedular physioCenter(Timestep);
     UI Ui(&physioCenter);
     physioCenter.loadFile("input1.txt");
