@@ -80,6 +80,7 @@ public:
 	void assignXTreatment();
 	void assignUTreatment();
 	void assignETreatment();
+	void mainSimulation();
 	int getCurrentTime() const;
 int getTotalPatients() const { return Total_patients; }
 int getAvailableEDevices() const;
