@@ -59,7 +59,6 @@ private:
 	Status Pstatus;
 	char char_type;
 	Type Ptype;
-	/*UI* inout;*/
 	UI* inout;
 	int NUM_E, NUM_U, NUM_G;
 	int gymCap;
