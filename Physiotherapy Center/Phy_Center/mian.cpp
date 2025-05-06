@@ -7,8 +7,9 @@ int main() {
     UI Ui(&physioCenter);
     physioCenter.loadFile("input1.txt");
     while (physioCenter.shouldContinue()){
-    physioCenter.runSimulation(Timestep); // Start from timestep 1
-    Ui.displayCurrentStatus(Timestep);
+    //physioCenter.runSimulation(Timestep); // Start from timestep 1
+    physioCenter.runSimulation(Timestep);
+    Ui.displayCurrentStatus(Timestep); 
     Timestep++;
     }
 

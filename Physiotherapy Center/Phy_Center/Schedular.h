@@ -14,6 +14,7 @@
 #include"ETherapy.h"
 #include"UTherapy.h"
 #include"XTherapy.h"
+#include"UI.h"
 
 #include <fstream>
 #include <sstream>
@@ -80,7 +81,6 @@ public:
 	void assignXTreatment();
 	void assignUTreatment();
 	void assignETreatment();
-	void mainSimulation();
 	int getCurrentTime() const;
 int getTotalPatients() const { return Total_patients; }
 int getAvailableEDevices() const;

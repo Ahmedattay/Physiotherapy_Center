@@ -97,60 +97,42 @@ void Schedular::processLateList(int currentTime)
     }
 }
 void Schedular::processWaitingLists(int currentTime) {
-    Patient* patient;
-    while (!E_Waiting.isEmpty()) 
-    {
-        // Verify treatment type matches waiting list
-        if (patient && patient->getCurrentTreatment() && patient->getCurrentTreatment()->GetType() == 'E') {
+    Patient* patient ;
+    Treatment* treatment=nullptr;
+    Resource* resource;
+    while (!E_Waiting.isEmpty())
+
+    {   
+      resource = treatment->GetResource();
+
+        if (treatment->canAssign(resource))
+        {
             E_Waiting.dequeue(patient);
             assignTreatment(patient, E_Divces, currentTime);
         }
-        else if (patient && patient->getCurrentTreatment())
-        {
-            // Handle mismatch - move to correct waiting list
-            char correctType = patient->getCurrentTreatment()->GetType();
-            E_Waiting.dequeue(patient);
-            AddToWait(patient, correctType);
-            continue;
-        }
+       
     }
 
     // Process U-Waiting
     while (!U_Waiting.isEmpty()) {
-        Patient* patient;
-        U_Waiting.peek(patient);
+      
+            Resource* resource = treatment->GetResource();
 
-        if (patient && patient->getCurrentTreatment() &&
-            patient->getCurrentTreatment()->GetType() == 'U') {
-            U_Waiting.dequeue(patient);
-            assignTreatment(patient, U_Divces, currentTime);
+            if (treatment->canAssign(resource))
+            {
+                E_Waiting.dequeue(patient);
+                assignTreatment(patient, E_Divces, currentTime);
+            }
         }
-        else 
-        {
-            char correctType = patient->getCurrentTreatment()->GetType();
-            U_Waiting.dequeue(patient);
-            AddToWait(patient, correctType);
-            continue;
-        }
-    }
 
     while (!X_Waiting.isEmpty()) {
-        Resource* room;
-        X_Rooms.peek(room);
-        if (room && room->getCurrentPatients() < room->getCapacity()) {
-            Patient* patient;
-            X_Waiting.peek(patient);
 
-            if (patient && patient->getCurrentTreatment() &&
-                patient->getCurrentTreatment()->GetType() == 'X') {
-                X_Waiting.dequeue(patient);
-                assignTreatment(patient, X_Rooms, currentTime);
-            }
-            else {
-                char correctType = patient->getCurrentTreatment()->GetType();
-                X_Waiting.dequeue(patient);
-                AddToWait(patient, correctType);
-            }
+        Resource* resource = treatment->GetResource();
+
+        if (treatment->canAssign(resource))
+        {
+            E_Waiting.dequeue(patient);
+            assignTreatment(patient, E_Divces, currentTime);
         }
     }
 
@@ -341,7 +323,7 @@ void Schedular::runSimulation(int currentTime)
         processArrivals(currentTime);
         processEarlyList(currentTime);
         processLateList(currentTime);
-        processWaitingLists(currentTime,);
+        processWaitingLists(currentTime);
         processInTreatment(currentTime); 
 
         UI ui(this);
