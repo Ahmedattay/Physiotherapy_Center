@@ -19,6 +19,7 @@ Schedular::Schedular(int currentTime)
     gymCap = 0;          // Initialize gymCap
     patient = nullptr;   // Initialize patient
     resource = nullptr;  // Initialize resource
+    inout = nullptr;
 }
 
 void Schedular::processArrivals(int currentTime) {

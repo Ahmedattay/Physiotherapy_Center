@@ -1,17 +1,2 @@
-﻿  ETherapy.cpp
-  mian.cpp
-  Schedular.cpp
-C:\A9MD26\CUFE\4-Spring-2025\Data Structures and Algorithms\Project\Physiotherapy_Center\Physiotherapy Center\Phy_Center\Schedular.cpp(5,15): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
-  UI.cpp
-C:\A9MD26\CUFE\4-Spring-2025\Data Structures and Algorithms\Project\Physiotherapy_Center\Physiotherapy Center\Phy_Center\Schedular.h(62,4): error C2143: syntax error: missing ';' before '*'
-  (compiling source file 'UI.cpp')
-  
-C:\A9MD26\CUFE\4-Spring-2025\Data Structures and Algorithms\Project\Physiotherapy_Center\Physiotherapy Center\Phy_Center\Schedular.h(62,2): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
-  (compiling source file 'UI.cpp')
-  
-C:\A9MD26\CUFE\4-Spring-2025\Data Structures and Algorithms\Project\Physiotherapy_Center\Physiotherapy Center\Phy_Center\Schedular.h(62,11): error C2238: unexpected token(s) preceding ';'
-  (compiling source file 'UI.cpp')
-  
-  UTherapy.cpp
-  XTherapy.cpp
-  Generating Code...
+﻿  mian.cpp
+  Phy_Center.vcxproj -> C:\A9MD26\CUFE\4-Spring-2025\Data Structures and Algorithms\Project\Physiotherapy_Center\Physiotherapy Center\x64\Debug\Phy_Center.exe
