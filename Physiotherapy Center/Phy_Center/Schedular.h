@@ -90,7 +90,6 @@ public:
 	void assignXTreatment();
 	void assignUTreatment();
 	void assignETreatment();
-	void mainSimulation();
 	int getCurrentTime() const;
 
 void Create_Out_File(int timestep);
