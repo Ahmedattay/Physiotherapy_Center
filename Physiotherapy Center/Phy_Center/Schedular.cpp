@@ -355,9 +355,9 @@ void Schedular::runSimulation(int currentTime)
 void Schedular::AddToWait(Patient* patient, char Type) {
     if (!patient) return;
     patient->setWaitingStartTime(current_step);
-    if (Type == 'E') E_Waiting.enqueue(patient);
-    else if (Type == 'U') U_Waiting.enqueue(patient);
-    else if (Type == 'X') X_Waiting.enqueue(patient);
+    if (Type == 'E') E_Waiting.insertSorted(patient);
+    else if (Type == 'U') U_Waiting.insertSorted(patient);
+    else if (Type == 'X') X_Waiting.insertSorted(patient);
 }
 bool Schedular::shouldContinue() const {
 

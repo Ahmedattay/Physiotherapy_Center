@@ -1,18 +1,18 @@
 ﻿  ETherapy.cpp
   mian.cpp
   Schedular.cpp
-C:\Users\kerol\Desktop\Data Structure project\Physiotherapy Center\Phy_Center\Schedular.cpp(5,15): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+C:\A9MD26\CUFE\4-Spring-2025\Data Structures and Algorithms\Project\Physiotherapy_Center\Physiotherapy Center\Phy_Center\Schedular.cpp(5,15): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
   UI.cpp
-C:\Users\kerol\Desktop\Data Structure project\Physiotherapy Center\Phy_Center\Schedular.h(62,4): error C2143: syntax error: missing ';' before '*'
+C:\A9MD26\CUFE\4-Spring-2025\Data Structures and Algorithms\Project\Physiotherapy_Center\Physiotherapy Center\Phy_Center\Schedular.h(63,4): error C2143: syntax error: missing ';' before '*'
   (compiling source file 'UI.cpp')
   
-C:\Users\kerol\Desktop\Data Structure project\Physiotherapy Center\Phy_Center\Schedular.h(62,4): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
+C:\A9MD26\CUFE\4-Spring-2025\Data Structures and Algorithms\Project\Physiotherapy_Center\Physiotherapy Center\Phy_Center\Schedular.h(63,2): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
   (compiling source file 'UI.cpp')
   
-C:\Users\kerol\Desktop\Data Structure project\Physiotherapy Center\Phy_Center\Schedular.h(62,11): error C2238: unexpected token(s) preceding ';'
+C:\A9MD26\CUFE\4-Spring-2025\Data Structures and Algorithms\Project\Physiotherapy_Center\Physiotherapy Center\Phy_Center\Schedular.h(63,11): error C2238: unexpected token(s) preceding ';'
   (compiling source file 'UI.cpp')
   
   UTherapy.cpp
   XTherapy.cpp
   Generating Code...
-C:\Users\kerol\Desktop\Data Structure project\Physiotherapy Center\Phy_Center\Schedular.cpp(105): error C4700: uninitialized local variable 'patient' used
+C:\A9MD26\CUFE\4-Spring-2025\Data Structures and Algorithms\Project\Physiotherapy_Center\Physiotherapy Center\Phy_Center\Schedular.cpp(105,1): error C4700: uninitialized local variable 'patient' used
