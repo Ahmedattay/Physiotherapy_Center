@@ -28,24 +28,21 @@ void Schedular::processArrivals(int currentTime) {
         
         if (patient->getArrival_Time() < patient->getAppoinment_Time()) {
             Early_Patients.enqueue(patient, patient->getAppoinment_Time());
-            Status pstat;
-            pstat = ERLY;
-            patient->setStatus(pstat);
+            Status Waitstat = ERLY;
+            patient->setStatus(Waitstat);
 
         }
         else if (patient->getArrival_Time() > patient->getAppoinment_Time()) {
             int penalty = (patient->getArrival_Time() - patient->getAppoinment_Time()) / 2;
-            int effectiveTime = patient->getArrival_Time() + penalty;
-            Late_Patients.enqueue(patient, effectiveTime);
-            /*patient->setAppoinment_Time(penalty+ patient->getAppoinment_Time());*/
-            Status pstat;
-            pstat = LATE;
-            patient->setStatus(pstat);
+            int NewTimeAfterPenalty = patient->getArrival_Time() + penalty;
+            Late_Patients.enqueue(patient, NewTimeAfterPenalty);
+            Status Latestat= LATE;
+            patient->setStatus(Latestat);
         }
         else {
-            if (patient->getCurrentTreatment()) {
-                char treatmentType = patient->getCurrentTreatment()->GetType();
-               AddToWait(patient, treatmentType);
+            if (patient->getCurrentTreatment()) 
+            {
+              AddToWait(patient, patient->getCurrentTreatment()->GetType());
             }
         }
     }
@@ -53,18 +50,13 @@ void Schedular::processArrivals(int currentTime) {
 void Schedular::processEarlyList(int currentTime)
 {
     Patient* patient = nullptr;
-    int pt = 0;
+    int pri = 0;
 
-    while (Early_Patients.peek(patient,pt) && pt <= currentTime)
+    while (Early_Patients.dequeue(patient, pri))
     {
-        Early_Patients.dequeue(patient, pt);
+      
 
-        if (!patient)
-            continue;
-
-        Treatment* currentTreatment = patient->getCurrentTreatment();
-
-        if (!currentTreatment)
+        if (!patient->getCurrentTreatment())
         {
             if (!patient->moveToNextTreatment())
             {
@@ -76,8 +68,8 @@ void Schedular::processEarlyList(int currentTime)
             continue;
         }
 
-        char treatmentType = currentTreatment->GetType();
-        AddToWait(patient, treatmentType);
+        else 
+        AddToWait(patient, patient->getCurrentTreatment()->GetType());
         Status pstat = WAIT;
         patient->setStatus(pstat); 
     }
