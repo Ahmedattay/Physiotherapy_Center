@@ -1,4 +1,5 @@
 #include "Schedular.h"
+#include <fstream>
 Schedular::Schedular(int currentTime)
 {
     srand(time(0));      // Seed random number generator
@@ -239,6 +240,7 @@ void Schedular::processRescheduling() {
         Early_Patients.enqueue(patient, pt);
     }
 }
+/////////////////////////////////////////////////////
 void Schedular::moveToRandomWaiting(Patient* patient)
 {
     int N = rand() % 100;
@@ -341,11 +343,11 @@ void Schedular::runSimulation(int currentTime)
         processArrivals(currentTime);
         processEarlyList(currentTime);
         processLateList(currentTime);
-        processWaitingLists(currentTime,);
+        processWaitingLists(currentTime);
         processInTreatment(currentTime); 
 
-        UI ui(this);
-        ui.displayCurrentStatus(currentTime);
+        /*UI ui(this);*/
+       /* ui.displayCurrentStatus(currentTime);*/
 
         // Use your existing print functions exactly as provided
 
@@ -364,6 +366,7 @@ bool Schedular::shouldContinue() const {
     else
         return true;
 }
+//////////////////////////////////////////////////////
 void Schedular::assignTreatment(Patient* patient, LinkedQueue<Resource*>& resourceQueue, int currentTime) {
     if (!patient || resourceQueue.isEmpty()) return;
 
@@ -536,6 +539,61 @@ void Schedular::assignXTreatment() {
 
         X_Rooms.enqueue(room);
     }
+}
+//////////////////////////////////////////////////////
+void Schedular::Create_Out_File(int timestep) 
+{
+    ofstream outfile;
+    Patient* patient;
+    int totalWaitTime = 0;
+    int totalTreatmentTime = 0;
+    int totalPatients = 0;
+
+    // Open the output file
+    string fileName = "../OutPut_File.txt";
+    outfile.open(fileName);
+
+    // Write header to the file
+    outfile << "PID\tPType\tPT\tVT\tFT\tWT\tTT\tCancel\tResc" << endl;
+
+    // Process each patient in the Finished stack
+    while (!Finished.isEmpty()) {
+        Finished.pop(patient);
+
+        if (patient) {
+            // Write patient details to the file
+            outfile << patient->getPatientID() << "\t"
+                << patient->getType() << "\t"
+                << patient->getAppoinment_Time() << "\t"
+                << patient->getArrival_Time() << "\t"
+                << patient->getFinsihTime() << "\t"
+                << patient->getTotalWaitTime() << "\t"
+                << patient->getTotalTreatmentTime() << "\t"
+                << (patient->hasAcceptedCancellation() ? "T" : "F") << "\t"
+                << (patient->hasAcceptedRescheduling() ? "T" : "F") << endl;
+
+            // Update statistics
+            totalWaitTime += patient->getTotalWaitTime();
+            totalTreatmentTime += patient->getTotalTreatmentTime();
+            totalPatients++;
+
+        }
+    }
+
+    // Calculate and write statistics
+    float avgWaitTime = totalWaitTime / static_cast<float>(totalPatients);
+    float avgTreatmentTime = totalTreatmentTime / static_cast<float>(totalPatients);
+
+    outfile << "Total number of patients: " << totalPatients << endl;
+    outfile << "Average waiting time: " << avgWaitTime << endl;
+    outfile << "Average treatment time: " << avgTreatmentTime << endl;
+    outfile << "Simulation ended at timestep: " << timestep << endl;
+
+    // Close the output file
+    outfile.close();
+
+    // Print message
+    inout->PrintMessage("Output File Created, Simulation Complete.");
 }
 //----------------------Getter Functions----------------------//
 int Schedular::getCurrentTime() const { return current_step; }

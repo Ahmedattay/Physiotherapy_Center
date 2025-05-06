@@ -2,7 +2,18 @@
 #include <cstring> // for strstr
 
 UI::UI(Schedular* sched) : schedular(sched) {}
-
+bool UI::getSelectedMode()
+{
+    cout << "Select Mode: ['i' for interactive mode , Press any other key for silent mode]" << endl;
+    char c;
+    cin >> c;
+    cin.get();
+    return c == 'i';
+}
+void UI::WaitForUserKey() 
+{
+    cin.get();
+}
 void UI::clearScreen() const {
 #if defined(_WIN32)
     system("cls");
@@ -10,7 +21,10 @@ void UI::clearScreen() const {
     system("clear");
 #endif
 }
-
+void UI::PrintMessage(string message) 
+{
+    cout << message << endl;
+}
 void UI::displayCurrentStatus(int currentTime) const {
     clearScreen();
 
@@ -79,7 +93,6 @@ void UI::displayCurrentStatus(int currentTime) const {
     std::cout << "\nPress any key to display next timestep\n";
     std::cin.get();
 }
-
 void UI::printPatientList(const char* name, const LinkedQueue<Patient*>& list) const {
     std::cout << list.size() << " " << name << " patients: ";
     LinkedQueue<Patient*> temp = list;

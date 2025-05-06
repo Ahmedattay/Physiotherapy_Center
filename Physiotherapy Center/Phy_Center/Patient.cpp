@@ -47,7 +47,22 @@ void Patient::setArrival_Time(int Vt)
 {
     Arrival_Time = Vt;
 }
-
+bool Patient::hasAcceptedCancellation() 
+{
+    return this->isCancelled;
+}
+void Patient::setAcceptedCancellation(bool accepted)
+{
+    this->isCancelled = accepted;
+}
+bool Patient::hasAcceptedRescheduling() 
+{
+    return this->isResc;
+}
+void Patient::setAcceptedRescheduling(bool accepted)
+{
+    this->isResc = accepted;
+}
 int Patient::getAppoinment_Time()
 {
     return Appoinment_Time;
@@ -157,6 +172,13 @@ bool Patient::moveToNextTreatment() {
 
     currentTreatment = nullptr;
     return false;
+}
+bool Patient::isLate() const 
+{
+    return Arrival_Time > Appoinment_Time;
+}
+bool Patient::isEarly() const {
+    return Arrival_Time < Appoinment_Time;
 }
 Patient::~Patient() {
 }

@@ -57,10 +57,10 @@ public:
 
     bool getIsResc() const;
     void setIsResc(bool r);//isresc
-
+    bool isEarly() const;
     int getFinsihTime()const;
     void setFinishTime(int F);//FT
-
+    bool isLate() const;
     int getTotalWaitTime()const;
     void setTotalWaitTime(int TW);//TW
     void addWaitingTime(int wt);
@@ -71,7 +71,10 @@ public:
     void setCurrentTreatment(Treatment* t);
     int getArrival_Time() const;
     void setArrival_Time(int Vt);//VT
-
+    bool hasAcceptedCancellation();
+    void setAcceptedCancellation(bool accepted);
+    bool hasAcceptedRescheduling();
+    void setAcceptedRescheduling(bool accepted);
     int getAppoinment_Time();
     void setAppoinment_Time(int Pt);//PT
     void addTreatment(Treatment *t) ;

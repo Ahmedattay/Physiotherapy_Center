@@ -14,7 +14,7 @@
 #include"ETherapy.h"
 #include"UTherapy.h"
 #include"XTherapy.h"
-
+#include "UI.h"
 #include <fstream>
 #include <sstream>
 #include<iostream>
@@ -47,6 +47,10 @@ private:
 
 	int totalTimesteps;
 	int cancelledPatients;
+	int  TotalLatePatients;
+	int TotalEarlyPatients;
+	int TotalAcceptedCancellation;
+	int  TotalAcceptedRescheduling;
 	int rescheduledPatients;
 	int availableEDevices;
 	int availableUDevices;
@@ -55,7 +59,7 @@ private:
 	Status Pstatus;
 	char char_type;
 	Type Ptype;
-
+	UI* inout;
 	int NUM_E, NUM_U, NUM_G;
 	int gymCap;
 	int PCancel, PResc;
@@ -63,6 +67,12 @@ private:
 
 public:
 	Schedular(int currentTime);
+
+	void generateOutputFile(int timestep);  
+	float calculateAverageWaitTime();  
+	float calculateAverageTreatmentTime();
+
+
 	void moveToRandomWaiting(Patient* patient);
 	void processArrivals(int currentTime);
 	void processEarlyList(int currentTime);
@@ -82,6 +92,8 @@ public:
 	void assignETreatment();
 	void mainSimulation();
 	int getCurrentTime() const;
+
+void Create_Out_File(int timestep);
 int getTotalPatients() const { return Total_patients; }
 int getAvailableEDevices() const;
 int getAvailableUDevices() const;
