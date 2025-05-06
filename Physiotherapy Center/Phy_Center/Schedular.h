@@ -81,6 +81,7 @@ public:
 	void assignXTreatment();
 	void assignUTreatment();
 	void assignETreatment();
+	void mainSimulation();
 	int getCurrentTime() const;
 int getTotalPatients() const { return Total_patients; }
 int getAvailableEDevices() const;
@@ -90,6 +91,7 @@ int getNumE() const;
 int getNumU() const;
 int getNumG() const;
 int getGymCapacity() const;
+
 
 const LinkedQueue<Patient*>& getAllPatients() const;
 const LinkedQueue<Patient*>& getEWaiting() const;

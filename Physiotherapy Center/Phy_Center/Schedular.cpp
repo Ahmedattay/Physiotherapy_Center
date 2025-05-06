@@ -55,84 +55,129 @@ void Schedular::processArrivals(int currentTime) {
         }
     }
 }
-void Schedular::processEarlyList(int currentTime) {
-    Patient* patient;
-    int pri;
-    while (!Early_Patients.isEmpty())
+void Schedular::processEarlyList(int currentTime)
+{
+    Patient* patient = nullptr;
+    int pt = 0;
+
+    while (Early_Patients.peek(patient, pt) && pt <= currentTime)
     {
-        Early_Patients.dequeue(patient, pri);
+        Early_Patients.dequeue(patient, pt);
 
-        Treatment* treatment = patient->getCurrentTreatment();
+        if (!patient)
+            continue;
 
-        if (treatment)
+        Treatment* currentTreatment = patient->getCurrentTreatment();
+
+        if (!currentTreatment)
         {
-
-            treatment->moveToWait(patient);
-            Status pstat;
-            pstat = WAIT;
-            patient->setStatus(pstat);
+            if (!patient->moveToNextTreatment())
+            {
+                Status pstat = FNSH;
+                patient->setStatus(pstat);
+                patient->setFinishTime(currentTime);
+                Finished.push(patient);
+            }
+            continue;
         }
 
-
-
+        char treatmentType = currentTreatment->GetType();
+        AddToWait(patient, treatmentType);
+        Status pstat = WAIT;
+        patient->setStatus(pstat); 
     }
 }
+
+
 void Schedular::processLateList(int currentTime)
- {
-    Patient* patient;
-    int pri;
-    while (!Late_Patients.isEmpty())
-    {
-        Late_Patients.dequeue(patient, pri);
+{
+    Patient* patient = nullptr;
+    int effectiveTime = 0;
 
-        Treatment* treatment = patient->getCurrentTreatment();
+    while (Late_Patients.peek(patient, effectiveTime) && effectiveTime <= currentTime) {
+        Late_Patients.dequeue(patient, effectiveTime);
 
-        if (treatment)
-        {
-            treatment->moveToWait(patient);
-            Status pstat;
-            pstat = WAIT;
-            patient->setStatus(pstat);
+        if (!patient) {
+            continue; // Defensive: skip null patients
         }
+
+        Treatment* currentTreatment = patient->getCurrentTreatment();
+
+        if (!currentTreatment) {
+            // Try to move to next treatment
+            if (!patient->moveToNextTreatment()) {
+                // No more treatments, patient is finished
+                Status pstat = FNSH; 
+                patient->setStatus(pstat); // Use Status::FNSH if enum class
+                patient->setFinishTime(currentTime);
+                Finished.push(patient);
+            }
+            continue;
+        }
+
+        // Patient has a valid treatment, send to correct wait list
+        char treatmentType = currentTreatment->GetType();
+        AddToWait(patient, treatmentType);
+        Status pstat = WAIT;
+        patient->setStatus(pstat); // Use Status::WAIT if scoped enum
     }
 }
+
 void Schedular::processWaitingLists(int currentTime) {
-    Patient* patient ;
-    Treatment* treatment=nullptr;
-    Resource* resource;
-    while (!E_Waiting.isEmpty())
+    // Process E-Waiting
+    while (!E_Waiting.isEmpty() && !E_Divces.isEmpty()) {
+        Patient* patient;
+        E_Waiting.peek(patient);
 
-    {   
-      resource = treatment->GetResource();
-
-        if (treatment->canAssign(resource))
-        {
+        // Verify treatment type matches waiting list
+        if (patient && patient->getCurrentTreatment() && patient->getCurrentTreatment()->GetType() == 'E') {
             E_Waiting.dequeue(patient);
             assignTreatment(patient, E_Divces, currentTime);
         }
-       
+        else {
+            // Handle mismatch - move to correct waiting list
+            char correctType = patient->getCurrentTreatment()->GetType();
+            E_Waiting.dequeue(patient);
+            AddToWait(patient, correctType);
+            continue;
+        }
     }
 
     // Process U-Waiting
-    while (!U_Waiting.isEmpty()) {
-      
-            Resource* resource = treatment->GetResource();
+    while (!U_Waiting.isEmpty() && !U_Divces.isEmpty()) {
+        Patient* patient;
+        U_Waiting.peek(patient);
 
-            if (treatment->canAssign(resource))
-            {
-                E_Waiting.dequeue(patient);
-                assignTreatment(patient, E_Divces, currentTime);
-            }
+        if (patient && patient->getCurrentTreatment() &&
+            patient->getCurrentTreatment()->GetType() == 'U') {
+            U_Waiting.dequeue(patient);
+            assignTreatment(patient, U_Divces, currentTime);
         }
+        else {
+            char correctType = patient->getCurrentTreatment()->GetType();
+            U_Waiting.dequeue(patient);
+            AddToWait(patient, correctType);
+            continue;
+        }
+    }
 
-    while (!X_Waiting.isEmpty()) {
+    if (!X_Waiting.isEmpty()) {
+        Resource* room;
+        X_Rooms.peek(room);
+        if (room && room->getCurrentPatients() < room->getCapacity()) {
+            Patient* patient;
+            X_Waiting.peek(patient);
 
-        Resource* resource = treatment->GetResource();
-
-        if (treatment->canAssign(resource))
-        {
-            E_Waiting.dequeue(patient);
-            assignTreatment(patient, E_Divces, currentTime);
+            if (patient && patient->getCurrentTreatment() &&
+                patient->getCurrentTreatment()->GetType() == 'X') {
+                X_Waiting.dequeue(patient);
+                assignTreatment(patient, X_Rooms, currentTime);
+            }
+            else {
+                char correctType = patient->getCurrentTreatment()->GetType();
+                X_Waiting.dequeue(patient);
+                AddToWait(patient, correctType);
+            }
         }
     }
 
@@ -319,15 +364,13 @@ void Schedular::loadFile(const string& filename) {
 void Schedular::runSimulation(int currentTime)
 {  
 
-        // Process in strict order
-        processArrivals(currentTime);
-        processEarlyList(currentTime);
-        processLateList(currentTime);
-        processWaitingLists(currentTime);
-        processInTreatment(currentTime); 
-
-        UI ui(this);
-        ui.displayCurrentStatus(currentTime);
+    current_step = currentTime; 
+    // Process in strict order 
+    processArrivals(current_step); 
+    processEarlyList(current_step); 
+    processLateList(current_step); 
+    processWaitingLists(current_step); 
+    processInTreatment(currentTime); 
 
         // Use your existing print functions exactly as provided
 
@@ -480,6 +523,7 @@ void Schedular::assignETreatment() {
         patient->setStatus(pstat);
     }
 }
+
 void Schedular::assignUTreatment() {
     if (U_Waiting.isEmpty() || U_Divces.isEmpty()) return;
 

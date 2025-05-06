@@ -6,9 +6,9 @@ int main() {
     Schedular physioCenter(Timestep);
     UI Ui(&physioCenter);
     physioCenter.loadFile("input1.txt");
-    while (physioCenter.shouldContinue()){
-    //physioCenter.runSimulation(Timestep); // Start from timestep 1
-    physioCenter.runSimulation(Timestep);
+    while (physioCenter.shouldContinue())
+    {
+    physioCenter.runSimulation(Timestep);//start from step 1
     Ui.displayCurrentStatus(Timestep); 
     Timestep++;
     }
