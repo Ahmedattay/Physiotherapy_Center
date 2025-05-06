@@ -42,7 +42,7 @@ void Schedular::processArrivals(int currentTime) {
         else {
             if (patient->getCurrentTreatment()) 
             {
-              AddToWait(patient, patient->getCurrentTreatment()->GetType());
+             AddToWait(patient, patient->getCurrentTreatment()->GetType());
             }
         }
     }
@@ -51,27 +51,12 @@ void Schedular::processEarlyList(int currentTime)
 {
     Patient* patient = nullptr;
     int pri = 0;
-
-    while (Early_Patients.dequeue(patient, pri))
+    while (Early_Patients.isEmpty())
     {
-      
-
-        if (!patient->getCurrentTreatment())
-        {
-            if (!patient->moveToNextTreatment())
-            {
-                Status pstat = FNSH;
-                patient->setStatus(pstat);
-                patient->setFinishTime(currentTime);
-                Finished.push(patient);
-            }
-            continue;
-        }
-
-        else 
+        Early_Patients.dequeue(patient, pri);
         AddToWait(patient, patient->getCurrentTreatment()->GetType());
-        Status pstat = WAIT;
-        patient->setStatus(pstat); 
+        Status Waitstat = WAIT;
+        patient->setStatus(Waitstat);
     }
 }
 
@@ -79,34 +64,15 @@ void Schedular::processEarlyList(int currentTime)
 void Schedular::processLateList(int currentTime)
 {
     Patient* patient = nullptr;
-    int effectiveTime = 0;
+    int NewTimeAfterPenalty = 0; 
 
-    while (Late_Patients.peek(patient, effectiveTime) && effectiveTime <= currentTime) {
-        Late_Patients.dequeue(patient, effectiveTime);
+    while (!Late_Patients.isEmpty())
+    {
 
-        if (!patient) {
-            continue; // Defensive: skip null patients
-        }
-
-        Treatment* currentTreatment = patient->getCurrentTreatment();
-
-        if (!currentTreatment) {
-            // Try to move to next treatment
-            if (!patient->moveToNextTreatment()) {
-                // No more treatments, patient is finished
-                Status pstat = FNSH; 
-                patient->setStatus(pstat); // Use Status::FNSH if enum class
-                patient->setFinishTime(currentTime);
-                Finished.push(patient);
-            }
-            continue;
-        }
-
-        // Patient has a valid treatment, send to correct wait list
-        char treatmentType = currentTreatment->GetType();
-        AddToWait(patient, treatmentType);
-        Status pstat = WAIT;
-        patient->setStatus(pstat); // Use Status::WAIT if scoped enum
+        Late_Patients.dequeue(patient, NewTimeAfterPenalty); 
+        AddToWait(patient, patient->getCurrentTreatment()->GetType());
+        Status Waitstat = WAIT;
+        patient->setStatus(Waitstat);
     }
 }
 
