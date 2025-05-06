@@ -1,6 +1,5 @@
 #include "UI.h"
 #include <cstring> // for strstr
-
 UI::UI(Schedular* sched) : schedular(sched) {}
 bool UI::getSelectedMode()
 {

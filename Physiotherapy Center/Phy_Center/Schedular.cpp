@@ -101,6 +101,7 @@ void Schedular::processWaitingLists(int currentTime) {
     Patient* patient;
     while (!E_Waiting.isEmpty()) 
     {
+        E_Waiting.peek(patient);
         // Verify treatment type matches waiting list
         if (patient && patient->getCurrentTreatment() && patient->getCurrentTreatment()->GetType() == 'E') {
             E_Waiting.dequeue(patient);
