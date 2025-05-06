@@ -22,15 +22,10 @@ Schedular::Schedular(int currentTime)
 
 void Schedular::processArrivals(int currentTime) {
     Patient* patient = nullptr;
-    while (ALL_Patients.peek(patient) && patient->getArrival_Time() <= currentTime) {
+
+    while (ALL_Patients.dequeue(patient)) 
+    {
         
-        ALL_Patients.dequeue(patient);
-
-        if (patient->getStatus() == FNSH) {
-            Finished.push(patient);
-            continue;
-        }
-
         if (patient->getArrival_Time() < patient->getAppoinment_Time()) {
             Early_Patients.enqueue(patient, patient->getAppoinment_Time());
             Status pstat;
@@ -366,9 +361,9 @@ void Schedular::runSimulation(int currentTime)
 
     // Process in strict order 
     processArrivals(currentTime);
-    processEarlyList(currentTime);
+    processEarlyList(currentTime); 
     processLateList(currentTime);
-    processWaitingLists(currentTime);
+    processWaitingLists(currentTime); 
     processInTreatment(currentTime); 
     UI ui(this);
     ui.displayCurrentStatus(currentTime);
