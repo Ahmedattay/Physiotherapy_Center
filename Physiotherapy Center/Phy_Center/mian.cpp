@@ -9,7 +9,6 @@ int main() {
     while (physioCenter.shouldContinue())
     {
     physioCenter.runSimulation(Timestep);//start from step 1
-    Ui.displayCurrentStatus(Timestep); 
     Timestep++;
     }
 

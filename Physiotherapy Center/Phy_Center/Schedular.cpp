@@ -60,7 +60,7 @@ void Schedular::processEarlyList(int currentTime)
     Patient* patient = nullptr;
     int pt = 0;
 
-    while (Early_Patients.peek(patient, pt) && pt <= currentTime)
+    while (Early_Patients.peek(patient,pt) && pt <= currentTime)
     {
         Early_Patients.dequeue(patient, pt);
 
@@ -364,13 +364,14 @@ void Schedular::loadFile(const string& filename) {
 void Schedular::runSimulation(int currentTime)
 {  
 
-    current_step = currentTime; 
     // Process in strict order 
-    processArrivals(current_step); 
-    processEarlyList(current_step); 
-    processLateList(current_step); 
-    processWaitingLists(current_step); 
+    processArrivals(currentTime);
+    processEarlyList(currentTime);
+    processLateList(currentTime);
+    processWaitingLists(currentTime);
     processInTreatment(currentTime); 
+    UI ui(this);
+    ui.displayCurrentStatus(currentTime);
 
         // Use your existing print functions exactly as provided
 
