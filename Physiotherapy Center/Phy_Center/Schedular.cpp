@@ -1,5 +1,4 @@
 #include "Schedular.h"
-#include <fstream>
 Schedular::Schedular(int currentTime)
 {
     srand(time(0));      // Seed random number generator
@@ -19,124 +18,119 @@ Schedular::Schedular(int currentTime)
     gymCap = 0;          // Initialize gymCap
     patient = nullptr;   // Initialize patient
     resource = nullptr;  // Initialize resource
-    inout = nullptr;
 }
 
 void Schedular::processArrivals(int currentTime) {
     Patient* patient = nullptr;
-    while (ALL_Patients.peek(patient) && patient->getArrival_Time() <= currentTime) {
+
+    while (ALL_Patients.dequeue(patient)) 
+    {
         
-        ALL_Patients.dequeue(patient);
-
-        if (patient->getStatus() == FNSH) {
-            Finished.push(patient);
-            continue;
-        }
-
         if (patient->getArrival_Time() < patient->getAppoinment_Time()) {
             Early_Patients.enqueue(patient, patient->getAppoinment_Time());
-            Status pstat;
-            pstat = ERLY;
-            patient->setStatus(pstat);
+            Status Waitstat = ERLY;
+            patient->setStatus(Waitstat);
 
         }
         else if (patient->getArrival_Time() > patient->getAppoinment_Time()) {
             int penalty = (patient->getArrival_Time() - patient->getAppoinment_Time()) / 2;
-            int effectiveTime = patient->getArrival_Time() + penalty;
-            Late_Patients.enqueue(patient, effectiveTime);
-            /*patient->setAppoinment_Time(penalty+ patient->getAppoinment_Time());*/
-            Status pstat;
-            pstat = LATE;
-            patient->setStatus(pstat);
+            int NewTimeAfterPenalty = patient->getArrival_Time() + penalty;
+            Late_Patients.enqueue(patient, NewTimeAfterPenalty);
+            Status Latestat= LATE;
+            patient->setStatus(Latestat);
         }
         else {
-            if (patient->getCurrentTreatment()) {
-                char treatmentType = patient->getCurrentTreatment()->GetType();
-               AddToWait(patient, treatmentType);
+            if (patient->getCurrentTreatment()) 
+            {
+             AddToWait(patient, patient->getCurrentTreatment()->GetType());
             }
         }
     }
 }
-void Schedular::processEarlyList(int currentTime) {
-    Patient* patient;
-    int pri;
-    while (!Early_Patients.isEmpty())
+void Schedular::processEarlyList(int currentTime)
+{
+    Patient* patient = nullptr;
+    int pri = 0;
+    while (Early_Patients.isEmpty())
     {
         Early_Patients.dequeue(patient, pri);
-
-        Treatment* treatment = patient->getCurrentTreatment();
-
-        if (treatment)
-        {
-
-            treatment->moveToWait(patient);
-            Status pstat;
-            pstat = WAIT;
-            patient->setStatus(pstat);
-        }
-
-
-
+        AddToWait(patient, patient->getCurrentTreatment()->GetType());
+        Status Waitstat = WAIT;
+        patient->setStatus(Waitstat);
     }
 }
+
+
 void Schedular::processLateList(int currentTime)
- {
-    Patient* patient;
-    int pri;
+{
+    Patient* patient = nullptr;
+    int NewTimeAfterPenalty = 0; 
+
     while (!Late_Patients.isEmpty())
     {
-        Late_Patients.dequeue(patient, pri);
 
-        Treatment* treatment = patient->getCurrentTreatment();
-
-        if (treatment)
-        {
-            treatment->moveToWait(patient);
-            Status pstat;
-            pstat = WAIT;
-            patient->setStatus(pstat);
-        }
+        Late_Patients.dequeue(patient, NewTimeAfterPenalty); 
+        AddToWait(patient, patient->getCurrentTreatment()->GetType());
+        Status Waitstat = WAIT;
+        patient->setStatus(Waitstat);
     }
 }
+
 void Schedular::processWaitingLists(int currentTime) {
+    // Process E-Waiting
+    while (!E_Waiting.isEmpty() && !E_Divces.isEmpty()) {
+        Patient* patient;
+        E_Waiting.peek(patient);
 
-    Patient* patient ;
-    Treatment* treatment=nullptr;
-    Resource* resource;
-    while (!E_Waiting.isEmpty())
-
-    {   
-      resource = treatment->GetResource();
-
-        if (treatment->canAssign(resource))
-        {
+        // Verify treatment type matches waiting list
+        if (patient && patient->getCurrentTreatment() && patient->getCurrentTreatment()->GetType() == 'E') {
             E_Waiting.dequeue(patient);
             assignTreatment(patient, E_Divces, currentTime);
         }
-       
+        else {
+            // Handle mismatch - move to correct waiting list
+            char correctType = patient->getCurrentTreatment()->GetType();
+            E_Waiting.dequeue(patient);
+            AddToWait(patient, correctType);
+            continue;
+        }
     }
 
     // Process U-Waiting
-    while (!U_Waiting.isEmpty()) {
+    while (!U_Waiting.isEmpty() && !U_Divces.isEmpty()) {
+        Patient* patient;
+        U_Waiting.peek(patient);
 
-      
-            Resource* resource = treatment->GetResource();
-
-            if (treatment->canAssign(resource))
-            {
-                E_Waiting.dequeue(patient);
-                assignTreatment(patient, E_Divces, currentTime);
-            }
+        if (patient && patient->getCurrentTreatment() &&
+            patient->getCurrentTreatment()->GetType() == 'U') {
+            U_Waiting.dequeue(patient);
+            assignTreatment(patient, U_Divces, currentTime);
         }
+        else {
+            char correctType = patient->getCurrentTreatment()->GetType();
+            U_Waiting.dequeue(patient);
+            AddToWait(patient, correctType);
+            continue;
+        }
+    }
 
-    while (!X_Waiting.isEmpty()) {
+    if (!X_Waiting.isEmpty()) {
+        Resource* room;
+        X_Rooms.peek(room);
+        if (room && room->getCurrentPatients() < room->getCapacity()) {
+            Patient* patient;
+            X_Waiting.peek(patient);
 
-        Resource* resource = treatment->GetResource();
-
-        if (treatment->canAssign(resource))
-        {
-            E_Waiting.dequeue(patient);
-            assignTreatment(patient, E_Divces, currentTime);
+            if (patient && patient->getCurrentTreatment() &&
+                patient->getCurrentTreatment()->GetType() == 'X') {
+                X_Waiting.dequeue(patient);
+                assignTreatment(patient, X_Rooms, currentTime);
+            }
+            else {
+                char correctType = patient->getCurrentTreatment()->GetType();
+                X_Waiting.dequeue(patient);
+                AddToWait(patient, correctType);
+            }
         }
     }
 
@@ -225,7 +219,6 @@ void Schedular::processRescheduling() {
         Early_Patients.enqueue(patient, pt);
     }
 }
-/////////////////////////////////////////////////////
 void Schedular::moveToRandomWaiting(Patient* patient)
 {
     int N = rand() % 100;
@@ -324,16 +317,14 @@ void Schedular::loadFile(const string& filename) {
 void Schedular::runSimulation(int currentTime)
 {  
 
-        // Process in strict order
-        processArrivals(currentTime);
-        processEarlyList(currentTime);
-        processLateList(currentTime);
-        processWaitingLists(currentTime);
-        processInTreatment(currentTime); 
-
-
-        UI ui(this);
-        ui.displayCurrentStatus(currentTime);
+    // Process in strict order 
+    processArrivals(currentTime);
+    processEarlyList(currentTime); 
+    processLateList(currentTime);
+    processWaitingLists(currentTime); 
+    processInTreatment(currentTime); 
+    UI ui(this);
+    ui.displayCurrentStatus(currentTime);
 
         // Use your existing print functions exactly as provided
 
@@ -341,9 +332,9 @@ void Schedular::runSimulation(int currentTime)
 void Schedular::AddToWait(Patient* patient, char Type) {
     if (!patient) return;
     patient->setWaitingStartTime(current_step);
-    if (Type == 'E') E_Waiting.insertSorted(patient);
-    else if (Type == 'U') U_Waiting.insertSorted(patient);
-    else if (Type == 'X') X_Waiting.insertSorted(patient);
+    if (Type == 'E') E_Waiting.enqueue(patient);
+    else if (Type == 'U') U_Waiting.enqueue(patient);
+    else if (Type == 'X') X_Waiting.enqueue(patient);
 }
 bool Schedular::shouldContinue() const {
 
@@ -352,7 +343,6 @@ bool Schedular::shouldContinue() const {
     else
         return true;
 }
-//////////////////////////////////////////////////////
 void Schedular::assignTreatment(Patient* patient, LinkedQueue<Resource*>& resourceQueue, int currentTime) {
     if (!patient || resourceQueue.isEmpty()) return;
 
@@ -487,6 +477,7 @@ void Schedular::assignETreatment() {
         patient->setStatus(pstat);
     }
 }
+
 void Schedular::assignUTreatment() {
     if (U_Waiting.isEmpty() || U_Divces.isEmpty()) return;
 
@@ -525,61 +516,6 @@ void Schedular::assignXTreatment() {
 
         X_Rooms.enqueue(room);
     }
-}
-//////////////////////////////////////////////////////
-void Schedular::Create_Out_File(int timestep) 
-{
-    ofstream outfile;
-    Patient* patient;
-    int totalWaitTime = 0;
-    int totalTreatmentTime = 0;
-    int totalPatients = 0;
-
-    // Open the output file
-    string fileName = "../OutPut_File.txt";
-    outfile.open(fileName);
-
-    // Write header to the file
-    outfile << "PID\tPType\tPT\tVT\tFT\tWT\tTT\tCancel\tResc" << endl;
-
-    // Process each patient in the Finished stack
-    while (!Finished.isEmpty()) {
-        Finished.pop(patient);
-
-        if (patient) {
-            // Write patient details to the file
-            outfile << patient->getPatientID() << "\t"
-                << patient->getType() << "\t"
-                << patient->getAppoinment_Time() << "\t"
-                << patient->getArrival_Time() << "\t"
-                << patient->getFinsihTime() << "\t"
-                << patient->getTotalWaitTime() << "\t"
-                << patient->getTotalTreatmentTime() << "\t"
-                << (patient->hasAcceptedCancellation() ? "T" : "F") << "\t"
-                << (patient->hasAcceptedRescheduling() ? "T" : "F") << endl;
-
-            // Update statistics
-            totalWaitTime += patient->getTotalWaitTime();
-            totalTreatmentTime += patient->getTotalTreatmentTime();
-            totalPatients++;
-
-        }
-    }
-
-    // Calculate and write statistics
-    float avgWaitTime = totalWaitTime / static_cast<float>(totalPatients);
-    float avgTreatmentTime = totalTreatmentTime / static_cast<float>(totalPatients);
-
-    outfile << "Total number of patients: " << totalPatients << endl;
-    outfile << "Average waiting time: " << avgWaitTime << endl;
-    outfile << "Average treatment time: " << avgTreatmentTime << endl;
-    outfile << "Simulation ended at timestep: " << timestep << endl;
-
-    // Close the output file
-    outfile.close();
-
-    // Print message
-    inout->PrintMessage("Output File Created, Simulation Complete.");
 }
 //----------------------Getter Functions----------------------//
 int Schedular::getCurrentTime() const { return current_step; }
