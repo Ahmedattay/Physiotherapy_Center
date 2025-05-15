@@ -1,0 +1,5 @@
+PID	PType	PT	VT	FT	WT	TT	Cancel	Resc
+Total number of patients: 0
+Average waiting time: -nan(ind)
+Average treatment time: -nan(ind)
+Simulation ended at timestep: 32

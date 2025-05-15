@@ -1,0 +1,9 @@
+﻿  ETherapy.cpp
+  Schedular.cpp
+C:\A9MD26\CUFE\Physiotherapy_Center\Physiotherapy_Center\Physiotherapy Center\Phy_Center\Schedular.cpp(4,15): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+  UI.cpp
+  UTherapy.cpp
+  XTherapy.cpp
+  mian.cpp
+  Generating Code...
+  Phy_Center.vcxproj -> C:\A9MD26\CUFE\Physiotherapy_Center\Physiotherapy_Center\Physiotherapy Center\x64\Debug\Phy_Center.exe
